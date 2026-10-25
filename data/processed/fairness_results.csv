@@ -1,0 +1,9 @@
+attribute,group,borrowers,actual_default_rate,flagged_rate,approval_rate,false_positive_rate,true_positive_rate,approval_ratio
+age_group,20-24,2380,22.77,13.24,86.76,3.7,45.57,0.95
+age_group,25-29,2257,22.42,11.92,88.08,4.4,37.94,0.97
+age_group,30-39,1470,20.07,11.16,88.84,4.68,36.95,0.98
+age_group,40+,375,20.0,9.07,90.93,3.0,33.33,1.0
+person_home_ownership,MORTGAGE,2651,12.94,3.39,96.61,2.56,9.04,0.98
+person_home_ownership,OTHER,23,21.74,13.04,86.96,0.0,60.0,0.88
+person_home_ownership,OWN,533,7.88,1.13,98.87,0.41,9.52,1.0
+person_home_ownership,RENT,3275,31.39,20.85,79.15,6.59,52.04,0.8
