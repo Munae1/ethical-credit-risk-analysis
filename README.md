@@ -1,75 +1,81 @@
-# ![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+# Ethical Credit Risk Analysis: Fairness Audit 
 
-## Template Instructions
+## Dataset Content
+- Dataset - Credit Risk dataset from Kaggle: https://www.kaggle.com/datasets/laotse/credit-risk-dataset 
+The dataset contains 32,409 loan records (after cleaning in project 2), describing borrowers, their loans and whether they defaulted. 
 
-Welcome,
+## Business Requirements 
+1. Identify whether default rates differ across age groups and home ownership types.
+2. Assess whether a default prediction model trates these groups fairly, even when age is not used as a feature.
+3. Communicate the findings and recommendations clearly to non-technical stakeholders through a dashboard. 
 
-This is the Code Institute student template for the three Data Analytics capstone projects. We have preinstalled all of the tools you need to get started. It's perfectly okay to use this template as the basis for your project submissions. Click the `Use this template` button above to get started.
+## Hypotheses
+1. Default rates differ only slightly by age - This was validated as rates range from 20.2% to 23.3%, a gap of 3.1% 
+2. Home ownership is strongly linked to default - Renters default at 31.6%, homeowners at 7.5%.
+3. Removing age from a model does not remove age bias - This was validated as the model flags 13.2% of 20-24 year olds vs 9.1% of 40+ year olds, despite similar actual default rates.
+4. Renters are disadvantaged by the model - This was validated as renters approval  ratio is 0.80 (on the threshold) and creditworthy renters are wrongly flagged 6.6% of the time vs 0.4% for homeowners
 
-You can safely delete the Template Instructions section of this README.md file and modify the remaining paragraphs for your own project. Please do read the Template Instructions at least once, though! It contains some important information about the IDE and the extensions we use.
+## Project Plan 
+1. Data preparation ('01_data_preparation.ipynb'): load the cleaned data, check quality, create age groups.
+2. Fairness audit ('02_fairness_audit.ipynb'): comapre default rates by group, train a logistic regression model without age and calculate fairness metrics.
+3. Dashboard ('Dashboard/fairness_dashboard.pbix'):visulise the results for stakeholders. 
+4. Documentation - This README, cover ethics and limitations
 
-If you are working on the first capstone project, you can also delete `.python-version`, `.slugignore`, `Procfile` and `setup.sh` as they are only required for later dashboard projects. 
+## Analysis Techniques
+- Descriptive statistics and group comparisons
+- Logistic regression (skikit-learn) trained without age, 'loan_grade' or 'loan_int_rate'
+- Fairness metrics: 
+    - Flagged rate: % predicted to default 
+    - Approval ratio: each groups approval rate divided by the highest group's
+    - False positive ratio: % of borrowers who did not default but were wrongly flagged. 
+    - True positive rate: % of actual defaulters correctly flagged. 
 
-## How to use this repo
+## Key Findings
+- Age: actual default rates are similar across age groups, but the model flags 20-24 year olds about 1.5 times as often as those 40+. All age groups pass the four-fifths rule (0.95-1.00), so bias is mild. 
+- Older borrowers: Only 5.4% of the data is aged 40+. The model catches only 33.3% of defaulters in this group compared with 45.6% for 20-24s, meaning it is less reliable to an under-represented group.
+- Home Ownership: This is the largest disparity. Creditworthy renters are around 16 times more likely to be wrongly flagged than homeowners and renters sit exactly on the four-fifths threshold. 
+- Model performance: Accuracy is 83.7%, compared with 78% for a baseline that always predicts "no default", seen in project 2. 
 
-1. Use this template to create your GitHub project repo. Click the **Use this template** button, then click **Create a new repository**.
+## Ethical considerations
+- Protected considerations: Age is a protected characterstic under the UK Equality Act 2010. Lending decisions that disadvantage an age group without a justified reason could amount to indirect discrimination. 
+- Indirect bias: Even without age, features linked to age (income, credit history, renting) can reproduce age-related differences. Home ownership can also disadvantage people from a less wealthy background.
+- Impact of errors: A false positive means a creditworthy person is refused credit. These erros happen far more commonly to renters, which can be seen as real-world harm. 
+- Representation: Older borrowers are under-represented, so conclusions and model performance for this group are less certain. 
 
-1. Copy the URL of your repository to your clipboard.
+## Legal Considerations and Data Governance
+- The dataset is publicly available under a CCO licence and contains no person data about real people. 
 
-1. In VS Code, select **File** -> **Open Folder**.
+## Recommendations
+1. Monitor approval rates and false positive rates by age group and home ownership regularly, not just overall accuracy.
+2. Review whether home ownership should be used as a model feature, or test the model with and without it. 
+3. Collect more data on older borrowers to improve reliability for that group. 
 
-1. Select your `vscode-projects` folder, then click the **Select Folder** button on Windows, or the **Open** button on Mac.
+## Dashboard design 
+Power BI Dashboard for non-technical stakeholders. 
+- Actual vs flagged rate by age group (clustered column chart): shows the model flags young people more even though real outcomes are similar. 
+- Actual vs flagged rate by home ownership(clustered column chart): shows the much larger gap for renters. 
+- Fairness metrics table: Approval ratios against the four-fifths rule, and false positive rates. 
+- Key finding text box. 
+The 'OTHER' home ownership group is excluded from the chart because it is too small (23 test borrowers)
+![alt text](image-1.png)
 
-1. From the top menu in VS Code, select **Terminal** > **New Terminal** to open a new terminal.
 
-1. In the terminal, type `git clone` followed by the URL of your GitHub repository. Then hit **Enter**. This command will download all the files in your GitHub repository into your vscode-projects folder.
+## Limitations
+- The dataset has no gender or ethnicity columns, so fairness for those characteristics cannot be assessed. 
+- Group sizes are uneven (only 375 borrowers aged 40+ in the test set), making some rates less stable. 
+- Only one model (logistic regression) and one train/test split were tested. 
 
-1. In VS Code, select **File** > **Open Folder** again.
+## Main Libraries Used
+- Pandas - Loading and summarising data
+- Matplotlib/ Seaborn - charts 
+- scikit-learn - train/test split 
+- Power BI - Dashboard 
+ 
+ ## Credits 
+ - Dataset: Kaggle Credit Risk Dataset 
+ - Project template: Code Institute data anlytics template
+ - Code:
+    - Code institute LMS: Code creation for data cleaning and summarising and visualisations with matplotlib. 
+    - Claude code (Anthropic): Project planning, code creation for logistic regression and preprocessing pipeline. Provided suggestions used such as includingthe four-fifths rule. 
 
-1. This time, navigate to and select the folder for the project you just downloaded. Then, click **Select Folder**.
 
-1. A virtual environment is necessary when working with Python projects to ensure each project's dependencies are kept separate. You need to create your virtual environment, also called a venv, and then activate it whenever you return to your workspace.
-Click the gear icon in the lower left-hand corner of the screen to open the Manage menu and select **Command Palette** to open the VS Code command palette.
-
-1. In the command palette, type: *create environment* and select **Python: Create Environment…**
-
-1. Choose **Venv** from the dropdown list.
-
-1. Choose the Python version you installed earlier. Currently, we recommend Python 3.12.8
-
-1. **DO NOT** click the box next to `requirements.txt`; you need to complete additional steps before installing your dependencies. Click **OK**.
-
-1. You will see a `.venv` folder appear in the file explorer pane, indicating that the virtual environment has been created.
-
-1. **Important**: Note that the `.venv` folder is in the `.gitignore` file so that Git won't track it.
-
-1. Return to the terminal by clicking on the TERMINAL tab, or click on the **Terminal** menu and choose **New Terminal** if no terminal is currently open.
-
-1. In the terminal, use the command below to install your dependencies. This may take several minutes.
-
- ```console
- pip3 install -r requirements.txt
- ```
-
-1. Open the `jupyter_notebooks` directory, and click on the notebook you want to open.
-
-1. Click the **Kernel** button, then choose **Python Environments**.
-
-Note that the kernel says `Python 3.12.8` as it inherits from the venv, so it will be Python-3.12.8 if that is what is installed on your PC. To confirm this, you can use the command below in a notebook code cell.
-
-```console
-! python --version
-```
-
-## Deployment Reminders
-
-* The `.python-version`, `.slugignore`, `Procfile` and `setup.sh` files are necessary only if you are deploying a Streamlit app to Heroku as part of your submission for units 2 and 3. 
-* Set the `.python-version` Python version to a [Heroku-22](https://devcenter.heroku.com/articles/python-support#supported-runtimes) stack, currently supported version that most closely matches what you used in this project.
-* The project can be deployed to Heroku using the following steps.
-
-1. Log in to Heroku and create an App
-2. At the **Deploy** tab, select **GitHub** as the deployment method.
-3. Select your repository name and click **Search**. Once it is found, click **Connect**.
-4. Select the branch you want to deploy, then click **Deploy Branch**.
-5. The deployment process should happen smoothly if all deployment files are fully functional. Click the button **Open App** at the top of the page to access your App.
-6. If the slug size is too large, then add large files not required for the app to the `.slugignore` file.
